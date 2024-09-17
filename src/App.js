@@ -1,51 +1,38 @@
 import React, { useEffect, useState } from 'react';
 
-
 function App() {
-  const [quotes, setQuotes] = useState([]);
-  const [quote, setQuote] = useState(""); 
+  const [quote, setQuote] = useState({ q: "", a: "" });
+  const url = 'https://zenquotes.io/api/random';
 
-  const url = "https://type.fit/api/quotes";
-
-  useEffect(() => {
-    const fetchQuotes = async () => {
-      try {
-        const response = await fetch(url); 
-        const data = await response.json();
-        setQuotes(data);
-        getRandomQuote(data);  
-      } catch (error) {
-        console.error('Error fetching the quotes: ', error);
+  
+  const fetchQuote = async () => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log('API Response:', data); 
+      if (Array.isArray(data) && data.length > 0) {
+        setQuote({ q: data[0].q, a: data[0].a });
       }
-    };
-
-    fetchQuotes();
-  }, [url]);
-
-  const getRandomQuote = (quotesArray) => {
-    if (quotesArray.length > 0) {
-      const randomIndex = Math.floor(Math.random() * quotesArray.length);
-      const randomQuote = quotesArray[randomIndex];
-      setQuote(randomQuote);
+    } catch (error) {
+      console.error('Error fetching the quote:', error);
     }
   };
 
-  const handleNewQuote = () => {
-    getRandomQuote(quotes);
-  };
+
+  useEffect(() => {
+    fetchQuote();
+  }, []);
 
   return (
     <div className="container">
+      <h1 className="title">Quote Generator</h1>
       <div>
-        <h1 className="title">Quote Generator</h1>
-        <div>
-          <p className="quote-text">{quote?.text}</p>
-          <p className="quote-author"> {quote?.author}</p>
-        </div>
-        <button className="new-quote-btn" onClick={handleNewQuote}>
-          New Quote
-        </button>
+        <p className="quote-text">"{quote.q}"</p>
+        <p className="quote-author">- {quote.a}</p>
       </div>
+      <button className="new-quote-btn" onClick={fetchQuote}>
+        New Quote
+      </button>
     </div>
   );
 }
